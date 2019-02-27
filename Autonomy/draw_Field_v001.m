@@ -26,6 +26,8 @@ plot([Field.ScaleRamp.bl_x, Field.ScaleRamp.tl_x] , [Field.ScaleRamp.bl_y,  Fiel
 plot([Field.ScaleRamp.br_x, Field.ScaleRamp.tr_x] , [Field.ScaleRamp.br_y, Field.ScaleRamp.tr_y], 'blue');
 plot([Field.ScaleRamp.bl_x, Field.ScaleRamp.br_x] , [Field.ScaleRamp.bl_y, Field.ScaleRamp.br_y], 'Color',[0.4940, 0.1840, 0.5560]);
 plot([Field.ScaleRamp.tl_x, Field.ScaleRamp.tr_x] , [Field.ScaleRamp.tl_y, Field.ScaleRamp.tr_y], 'Color', [0.4940, 0.1840, 0.5560]);
+draw_Rocket_Line;
+%plot([6,0] , [6,0 + (18*in)]);
 
 draw_Cube(Field.RedPlatZone.Cube1_x, Field.RedPlatZone.Cube1_y);
 draw_Cube(Field.RedPlatZone.Cube2_x, Field.RedPlatZone.Cube2_y);

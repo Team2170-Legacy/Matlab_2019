@@ -30,7 +30,7 @@ Robot.Start_Pos.theta   = 0*deg;
 %   differences
 %Robot.d	= 25*in;		% distance between wheel centerlines
 
-Robot.d	= (24 + 7/8)*1.067*in;		% distance between wheel centerlines
+Robot.d	= 26*in;	% distance between wheel centerlines
 
 %   Update 03/03/2018 Martin Krucinski to account for experimental
 %   differences

@@ -16,13 +16,7 @@ init_Trajectories_v006
 
 all_Trajectories_String = {
     
-'Test01'
 'Straight'
-
-'RSRCLBv2'
-'RSRRS'
-
-
 };
 
 for traj = 1:length(all_Trajectories_String)
@@ -36,7 +30,7 @@ for traj = 1:length(all_Trajectories)
     trajectory  = all_Trajectories{traj};
     trajString  = all_Trajectories_String{traj};
     
-    simulate_robot_v006;
+    simulate_robot_v007;
     
     t_final     = all_t(end);
     
