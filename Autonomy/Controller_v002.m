@@ -7,6 +7,7 @@ function [v,omega] = Controller_v002(distance, angle ,Robot)
 
     % This is 2019-03-02 tuning
 Kp = 2; 
+%Kp_omega = 0.10;
 Kp_omega = 0.10;
 %   MK 2019-03-02 override Robot.v_max here to ensure IT IS INCLUDED in C-code
 Robot.v_max = 1.5;

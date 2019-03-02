@@ -16,7 +16,7 @@ Init_Field_v003
 
 total_time = 2;
 
-robot_pos_number         = 4
+robot_pos_number         = 7
 
 switch robot_pos_number,
     case 1,
@@ -56,6 +56,14 @@ end
 
 Robot.v0    = 1.0;  % initial assumed robot velcity
 
+%    initialize robot velocities BEFORE 1st run of camera & controller
+
+v       = Robot.v0;
+omega   = 0;
+
+
+
+
 Robot.wL0		= Robot.v0 / Robot.R;		% [rad/s]	initial left wheel angular velocity
 Robot.wR0		= Robot.v0 / Robot.R;		% [rad/s]	initial left wheel angular velocity
 
@@ -65,7 +73,7 @@ Ts			= Robot.Ts;			% [s]		Simulation sample time
 tfinal      = total_time;
 all_t       = (0:Ts:tfinal);
 
-fps         = 25/2;                % [frames/s]    Camera frame rate
+fps         = 10                % [frames/s]    Camera frame rate
 Ts_camera   = 1/fps;            % [s]           Camera "sample" time
 
 N			= length(all_t);	% []		Number of simulation time points
@@ -195,20 +203,28 @@ for i=1:N
     %             angle = (angle-180*deg);
     %         end
     %     end
-    
-    e_Gear_x        = N_pixel * angle / camera_view;
-    target_distance = distance;
-    
-    % Controller code
-    % OLD from FRC 2018 * **[v,omega] = Controller_v001(distance, angle, Robot);
-    
-    
-    %   FRC 2019 use CONTROLLER function with DISTANCE in [ft]
-    %  and angle error in PIXELS
-    distance_ft         = distance/ft;
-    [v_ft,omega] = Controller_v002(distance_ft, e_Gear_x, Robot);
-    
-    v       = v_ft*ft;      % convert back to m/s
+    % t_camera
+    if (t_camera>=Ts_camera),
+    %    t
+        t_camera            = Ts;
+        
+        e_Gear_x        = N_pixel * angle / camera_view;
+        target_distance = distance;
+        
+        % Controller code
+        % OLD from FRC 2018 * **[v,omega] = Controller_v001(distance, angle, Robot);
+        
+        
+        %   FRC 2019 use CONTROLLER function with DISTANCE in [ft]
+        %  and angle error in PIXELS
+        distance_ft         = distance/ft;
+        [v_ft,omega] = Controller_v002(distance_ft, e_Gear_x, Robot);
+        
+        v       = v_ft*ft;      % convert back to m/s
+    else
+        t_camera    = t_camera + Ts;
+    %    t_camera
+    end
     
     % Convert v and omega to omega_l and omega_r, i.e Robot.wL, Robot.wR
     %   vL - left wheel surface velocity [m/s] (NOT angular)
@@ -229,28 +245,28 @@ for i=1:N
     %   Add Vision Blending at end of move when t >= t_auto_end !!!!
     
     
-%     if (t>=t_auto_end) && (target_distance>18*in) && (t_camera>=Ts_camera),
-%         t_camera            = Ts;
-%         
-%         %   Calculate e_Gear_x [pixels]
-%         %   given Robot.x, Robot.y, Robot.theta
-%         %   Target.x, Target.y
-%         
-%         %         Target.x        = Peg.C1_x;
-%         %         Target.y        = Peg.C1_y;
-%         
-%         Camera.x        = Robot.x - Robot.L/2*cos(Robot.theta); % Note MINUS sign since robot drives BACWARDS to the peg
-%         Camera.y        = Robot.y - Robot.L/2*sin(Robot.theta);
-%         
-%         target_distance = norm([ Target.x - Camera.x   Target.y - Camera.y ]);
-%         
-%         theta_Robot_REV = Robot.theta - 180*deg;        % robot angle for REVERSE driving
-%         theta_target    = theta_Robot_REV - atan2(Target.y - Camera.y , Target.x - Camera.x );
-%         e_Gear_x_previous       = e_Gear_x;
-%         e_Gear_x        = N_pixel * theta_target / camera_view;
-%     else
-%         t_camera        = t_camera + Ts;
-%     end
+    %     if (t>=t_auto_end) && (target_distance>18*in) && (t_camera>=Ts_camera),
+    %         t_camera            = Ts;
+    %
+    %         %   Calculate e_Gear_x [pixels]
+    %         %   given Robot.x, Robot.y, Robot.theta
+    %         %   Target.x, Target.y
+    %
+    %         %         Target.x        = Peg.C1_x;
+    %         %         Target.y        = Peg.C1_y;
+    %
+    %         Camera.x        = Robot.x - Robot.L/2*cos(Robot.theta); % Note MINUS sign since robot drives BACWARDS to the peg
+    %         Camera.y        = Robot.y - Robot.L/2*sin(Robot.theta);
+    %
+    %         target_distance = norm([ Target.x - Camera.x   Target.y - Camera.y ]);
+    %
+    %         theta_Robot_REV = Robot.theta - 180*deg;        % robot angle for REVERSE driving
+    %         theta_target    = theta_Robot_REV - atan2(Target.y - Camera.y , Target.x - Camera.x );
+    %         e_Gear_x_previous       = e_Gear_x;
+    %         e_Gear_x        = N_pixel * theta_target / camera_view;
+    %     else
+    %         t_camera        = t_camera + Ts;
+    %     end
     
     %   Use a Ts_camera delayed image error to simulate a delay in
     %   processing camera images
@@ -306,6 +322,10 @@ for i=1:N
         text(10, Field.W/2, ['angle = ' num2str(displayangle) '°']);
         text(10, Field.W/2-1/2, ['distance = ' num2str(displaydistance) ' m']);
         text(10, Field.W/2-1,  ['vFwd = ' num2str(displayvFwd) ' m/s']);
+        
+        %isSkewed = isSkewed(Robot.C1_x, Robot.C1_y, Robot.C2_x, Robot.C2_y);
+        %text(10, Field.W/2-1,  ['isSkewed = ' num2str(isSkewed) ' m/s']);
+        
         %        text(10, Field.W - 0.5, trajectory.name);
         
         Robot_Figure		= getframe(f1);		% Capture screenshot image of figure
@@ -345,8 +365,8 @@ f2		= figure;				% open figure
 set(f2,'DefaultLineLineWidth',3);	% set figure to draw with thick lines by default
 grid on							% draw a grid on the figure
 hold on
-plot(all_t, Robot.wL_all*Robot.R, 'b');	% Plot left wheel velocities in Blue
-plot(all_t, Robot.wR_all*Robot.R, 'r');	% Plot right wheel velocities in Red
+stairs(all_t, Robot.wL_all*Robot.R, 'b');	% Plot left wheel velocities in Blue
+stairs(all_t, Robot.wR_all*Robot.R, 'r');	% Plot right wheel velocities in Red
 hold off
 xlabel('t [s]')
 ylabel('v [m/s]')
@@ -359,17 +379,20 @@ legend('vL','vR')
 Robot.aL_all = [ 0 ; diff(Robot.wL_all)/Robot.Ts];
 Robot.aR_all = [ 0 ; diff(Robot.wR_all)/Robot.Ts];
 
-f2b		= figure;				% open figure
-set(f2b,'DefaultLineLineWidth',3);	% set figure to draw with thick lines by default
-grid on							% draw a grid on the figure
-hold on
-plot(all_t, Robot.aL_all*Robot.R, 'b');	% Plot left wheel velocities in Blue
-plot(all_t, Robot.aR_all*Robot.R, 'r');	% Plot right wheel velocities in Red
-hold off
-xlabel('t [s]')
-ylabel('a [m/s^2]')
-legend('aL','aR')
-%title(trajString)
+if 0,
+    
+    f2b		= figure;				% open figure
+    set(f2b,'DefaultLineLineWidth',3);	% set figure to draw with thick lines by default
+    grid on							% draw a grid on the figure
+    hold on
+    stairs(all_t, Robot.aL_all*Robot.R, 'b');	% Plot left wheel velocities in Blue
+    stairs(all_t, Robot.aR_all*Robot.R, 'r');	% Plot right wheel velocities in Red
+    hold off
+    xlabel('t [s]')
+    ylabel('a [m/s^2]')
+    legend('aL','aR')
+    %title(trajString)
+end
 
 if 1,
     
@@ -378,23 +401,23 @@ if 1,
     
     subplot(311)
     title('Robot positions')
-    plot(all_t, Robot.x_all);	% Plot robot x-positions
+   stairs(all_t, Robot.x_all);	% Plot robot x-positions
     grid on							% draw a grid on the figure
     ylabel('x [m]')
     
     subplot(312)
-    plot(all_t, Robot.y_all);	% Plot robot y-positions
+   stairs(all_t, Robot.y_all);	% Plot robot y-positions
     grid on							% draw a grid on the figure
     ylabel('y [m]')
     
     subplot(313)
-    plot(all_t, Robot.theta_all);	% Plot robot angles
+    stairs(all_t, Robot.theta_all);	% Plot robot angles
     grid on							% draw a grid on the figure
     ylabel('theta [rad]')
     
     xlabel('t [s]')
     
-%    title(trajString)
+    %    title(trajString)
     
 end
 
