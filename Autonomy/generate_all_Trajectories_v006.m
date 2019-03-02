@@ -42,12 +42,13 @@ for traj = 1:length(all_Trajectories)
         copy_command    = ['!copy Robot_Movie.mp4 ' 'Movies\' movie_file_name];
         eval(del_command);
         eval(copy_command);
-        close all;
+        %close all;
     end
     
     make_dot_h_file_v003(trajString ,Robot.wR_all,Robot.wL_all,all_t,Robot,t_auto_end, i_auto_end)
     
 end
+
 
 
 

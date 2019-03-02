@@ -4,56 +4,28 @@
 %   Modified for FRC 2018 Control by Adonis Canada, Priyanshu Agrawal,
 %   and Baris Sengezen
 %
-%
-%
-%
-%
-%   Based on FRC_2017 Matlab simulator
-%	Jacob Krucinski
-%	jacob1576@gmail.com
-%
-%	FIRST Robotics Team 2170 Titanium Tomahawks
-%	Glastonbury High School, Glastonbury, CT, USA
-%
-%   2017-03-02      Martin Krucinski  Updated with init_Robot_v002,
-%   init_Field_v002
-%
-%   2018-03-04      Martin Krucinski    Added selection of make_movies flag
-%
-%   2018-03-20      Martin Krucinski    Added proper control handling when
-%   switching between forward and backwards moving trajectories
-
-%   Initialize conversion constants and field elements
-%init_Constants;
-%Init_Robot_v002
-%Init_Field_v002
-%init_Trajectories_v003
-
-%   Martin Krucinski 02/08/2018
-%   Select trajectory for testing
-%trajectory = BSMR %BSML
 
 
 
-    Robot.Start_Pos.x  =  6.6;
+total_time = 4;
 
-    
+Robot.Start_Pos.x       =  6.5;
+Robot.Start_Pos.y       =  4;
+Robot.Start_Pos.theta   =  0*deg;
 
-
-    Robot.Start_Pos.y =  3;
-    
-
-
-    Robot.Start_Pos.theta =  270*deg;
-    
-total_time = 3;
 
 %***2018 init_Robot_v002;        % MK init_Robot_v002 now calls init_Field_002
 
 %	initial robot wheel velocities & radius
 
-Robot.wL0		= 0;		% [rad/s]	initial left wheel angular velocity
-Robot.wR0		= 0;		% [rad/s]	initial left wheel angular velocity
+
+%Robot.wL0		= 0;		% [rad/s]	initial left wheel angular velocity
+%Robot.wR0		= 0;		% [rad/s]	initial left wheel angular velocity
+
+Robot.v0    = 1.0;  % initial assumed robot velcity
+
+Robot.wL0		= Robot.v0 / Robot.R;		% [rad/s]	initial left wheel angular velocity
+Robot.wR0		= Robot.v0 / Robot.R;		% [rad/s]	initial left wheel angular velocity
 
 
 %	Initialize simulation parameters
@@ -137,8 +109,8 @@ e_Gear_x_previous   = 0;
 delta_vL            = 0;
 delta_vR            = 0;
 
-N_pixel         = 320;
-camera_view     = 50*deg;   %   Camera HORIZONTAL viewing angle
+N_pixel         = 160;%320;
+camera_view     = 60*deg;   %   Camera HORIZONTAL viewing angle
 %FRC2018  target_distance  = 9;      %  Initial distance to target, large to ENABLE vision feedback control
 
 target_distance  = 0;      %  Initial distance to target, large to ENABLE vision feedback control
@@ -203,17 +175,26 @@ for i=2:N
     
     timer = timer + Ts;
     
-%     if (~forward_flag)
-%         if (angle<=0)
-%             angle = (angle+180*deg);
-%         else
-%             angle = (angle-180*deg);
-%         end
-%     end
+    %     if (~forward_flag)
+    %         if (angle<=0)
+    %             angle = (angle+180*deg);
+    %         else
+    %             angle = (angle-180*deg);
+    %         end
+    %     end
     
+    e_Gear_x        = N_pixel * angle / camera_view;
+    target_distance = distance;
     
     % Controller code
-    [v,omega] = Controller_v001(distance, angle, Robot);
+    %**[v,omega] = Controller_v001(distance, angle, Robot);
+    
+    
+    %   use CONTROLLER function with DISTANCE in [ft]
+    %  and angle error in PIXELS
+    [v_ft,omega] = Controller_v002(distance/ft, e_Gear_x, Robot);
+    
+    v       = v_ft*ft;      % convert back to m/s
     
     % Convert v and omega to omega_l and omega_r, i.e Robot.wL, Robot.wR
     %   vL - left wheel surface velocity [m/s] (NOT angular)
@@ -239,8 +220,8 @@ for i=2:N
         %   given Robot.x, Robot.y, Robot.theta
         %   Target.x, Target.y
         
-%         Target.x        = Peg.C1_x;
-%         Target.y        = Peg.C1_y;
+        %         Target.x        = Peg.C1_x;
+        %         Target.y        = Peg.C1_y;
         
         Camera.x        = Robot.x - Robot.L/2*cos(Robot.theta); % Note MINUS sign since robot drives BACWARDS to the peg
         Camera.y        = Robot.y - Robot.L/2*sin(Robot.theta);
@@ -265,7 +246,6 @@ for i=2:N
         
         delta_vL        = +Kp * e_Gear_x;
         delta_vR        = -Kp * e_Gear_x;
-        
     end
     
     
@@ -279,12 +259,16 @@ for i=2:N
     Robot.vFwd			= 1/2 * Robot.R * (Robot.wL + Robot.wR);		% [m/s] Robot Forward velocity, average of the two wheels
     Robot.omega			= (Robot.wR - Robot.wL) * Robot.R /  Robot.d;	% Robot Angular velocity
     
+    Robot.vFwd
+    Robot.omega
+    
+    
     Robot.vx			= Robot.vFwd * cos( Robot.theta );		% [m/s]		Robot center x-velocity
     Robot.vy			= Robot.vFwd * sin( Robot.theta );		% [m/s]		Robot center y-velocity
     
     Robot.x				= Robot.x + Robot.vx * Ts;			% [m]	Integrate robot x-position
     Robot.y				= Robot.y + Robot.vy * Ts;			% [m]	Integrate robot y-position
-    %Robot.theta			= Robot.theta + Robot.omega * Ts;	% [rad]	Integrate robot angle
+    Robot.theta			= Robot.theta + Robot.omega * Ts;	% [rad]	Integrate robot angle
     
     if make_movies,
         draw_Robot(Robot);						% Call function to draw Robot in figure
@@ -386,9 +370,9 @@ if 0,
     ylabel('theta [rad]')
     
     xlabel('t [s]')
-
+    
     title(trajString)
-
+    
 end
 
 Robot.wL_all(1)		= Robot.wL;
