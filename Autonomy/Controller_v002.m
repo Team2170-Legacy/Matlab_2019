@@ -5,7 +5,7 @@ function [v,omega] = Controller_v002(distance, angle ,Robot)
 %   Martin Krucinski 2018-03-07
 %Kp = 2.0;
 
-Kp = 0.5;
+Kp = 2;%0.5;
 Kp_omega = 0.05;
 
 
@@ -20,10 +20,10 @@ Kp_omega = 0.05;
 % Angle
 
 omega_max = Robot.omega_max;
-if distance > 1,
+if distance > 0%1,    % distance units are in ft
     omega_temp = Kp_omega*angle;
 else 
-    omega_temp = 0
+    omega_temp = 0;
 end
 
 if omega_temp > omega_max
@@ -38,7 +38,8 @@ end
 
 v_max = Robot.v_max;
 
-v_temp = Kp*distance + 1;
+v_offset    = 0; %**** 1
+v_temp = Kp*distance + v_offset;
 
 if v_temp > v_max
     v = v_max;

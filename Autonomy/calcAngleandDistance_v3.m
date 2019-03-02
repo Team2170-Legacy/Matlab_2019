@@ -9,24 +9,27 @@ angle = atan2(sidey,sidex)-Robot.theta;
 
 % if(angle>90*deg || angle<-90*deg)
 %     distance = -distance;
-% end 
+% end
 
 
 if (angle<-180*deg)
-   angle = angle + 360*deg;
+    angle = angle + 360*deg;
 end
-   
-   if (angle>180*deg)
-       angle = angle - 360*deg;
-   end
-   
-   
-if(angle<-90*deg && angle>-270*deg || angle>90*deg && angle<270*deg)
-    distance = -distance;
+
+if (angle>180*deg)
+    angle = angle - 360*deg;
 end
 
 
-   
+%    2019-03-10 Dr K.  changing distance sign is probably not needed in
+%    2019 Deep Space
+
+% if(angle<-90*deg && angle>-270*deg || angle>90*deg && angle<270*deg)
+%     distance = -distance;
+% end
+
+
+
 %   Find projection of carrot onto the robot center line in the direction
 %   of travel
 
@@ -37,7 +40,7 @@ end
 %   after rotating the x-y coordinate system by angle -Robot.theta
 
 % R = [ cos(Robot.theta) -sin(Robot.theta); sin(Robot.theta) cos(Robot.theta)];
-% 
+%
 % vec     = [sidex ; sidey];
 % % Rvec    = R * vec;
 
