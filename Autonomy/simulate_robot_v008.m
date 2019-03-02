@@ -6,15 +6,17 @@
 %
 %   v008    Clean-up by Dr K. 3/1/2019
 
-make_movies = true
+S
+
+make_movies = true;
 
 init_Constants
 Init_Robot_v002
 Init_Field_v003
 
-total_time = 3;
+total_time = 2;
 
-robot_pos_number         = 5
+robot_pos_number         = 4
 
 switch robot_pos_number,
     case 1,
@@ -37,10 +39,19 @@ switch robot_pos_number,
         Robot.Start_Pos.x       =  6.0;
         Robot.Start_Pos.y       =  2;
         Robot.Start_Pos.theta   =  230*deg;
+    case 6,
+        Robot.Start_Pos.x       =  5.5;
+        Robot.Start_Pos.y       =  2;
+        Robot.Start_Pos.theta   =  230*deg;
+    case 7,
+        Robot.Start_Pos.x       =  6.0;
+        Robot.Start_Pos.y       =  3;
+        Robot.Start_Pos.theta   =  270*deg;
     otherwise
         Robot.Start_Pos.x       =  5.7;
         Robot.Start_Pos.y       =  2;
         Robot.Start_Pos.theta   =  270*deg;
+        
 end
 
 Robot.v0    = 1.0;  % initial assumed robot velcity
@@ -78,24 +89,20 @@ Robot.vFwd_all		= zeros(N,1);	% [m/s]		robot forward velocity (in the direction 
 Robot.e_Gear_x_all  = zeros(N,1);	% [pixels]  robot gear target vision error
 Robot.target_distance_all = zeros(N,1);	% [m]  robot camera distance to target
 
-%make_movies = 0
-
 if make_movies,
     vWriter = VideoWriter('Robot_Movie','MPEG-4');	% initialize vide capture of simulation frames
     open(vWriter);									% open movie file
     
     f1		= figure; % open figure
     pos = get(f1, 'position');
-    set(f1,'position', [50 50 pos(3)*2 pos(4)*1.7]);
+    %*** MK 2019-03-02 this is the 2018 Movie figure size   set(f1,'position', [50 50 pos(3)*2 pos(4)*1.7]);
+    set(f1,'position', [200 200 800 400]);
     hold on							% ensure multiple drawing commands are overlaid on the figure
     draw_Field_v001
-    %draw_Trajectory(trajectory);
     
     axis('equal')					% ensure x & y directions are scale equally on screen
     xlim([-6*ft Field.L + 5*ft])					% [m]	set figure limits for x-axis
     ylim([-2*ft Field.W + 2*ft])					% [m]	set figure limits for y-axis
-    %xlim([-30 30])
-    %ylim([-20 20])
     set(f1,'DefaultLineLineWidth',3);% set figure to draw with thick lines by default
     grid on							% draw a grid on the figure
     % without erasing figure first
@@ -131,6 +138,7 @@ delta_vR            = 0;
 
 N_pixel         = 160;%320;
 camera_view     = 60*deg;   %   Camera HORIZONTAL viewing angle
+
 %FRC2018  target_distance  = 9;      %  Initial distance to target, large to ENABLE vision feedback control
 
 target_distance  = 0;      %  Initial distance to target, large to ENABLE vision feedback control
@@ -192,12 +200,13 @@ for i=1:N
     target_distance = distance;
     
     % Controller code
-    %**[v,omega] = Controller_v001(distance, angle, Robot);
+    % OLD from FRC 2018 * **[v,omega] = Controller_v001(distance, angle, Robot);
     
     
-    %   use CONTROLLER function with DISTANCE in [ft]
+    %   FRC 2019 use CONTROLLER function with DISTANCE in [ft]
     %  and angle error in PIXELS
-    [v_ft,omega] = Controller_v002(distance/ft, e_Gear_x, Robot);
+    distance_ft         = distance/ft;
+    [v_ft,omega] = Controller_v002(distance_ft, e_Gear_x, Robot);
     
     v       = v_ft*ft;      % convert back to m/s
     

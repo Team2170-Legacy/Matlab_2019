@@ -5,8 +5,14 @@ function [v,omega] = Controller_v002(distance, angle ,Robot)
 %   Martin Krucinski 2018-03-07
 %Kp = 2.0;
 
-Kp = 2;%0.5;
-Kp_omega = 0.05;
+    % This is 2019-03-02 tuning
+Kp = 2; 
+Kp_omega = 0.10;
+%   MK 2019-03-02 override Robot.v_max here to ensure IT IS INCLUDED in C-code
+Robot.v_max = 1.5;
+
+% *** TUNED VALUE 2019-03-01 Kp = 2;%0.5;
+%Kp_omega = 0.05;
 
 
 %   2018-03-05  Martin Krucinski
@@ -19,12 +25,18 @@ Kp_omega = 0.05;
 
 % Angle
 
-omega_max = Robot.omega_max;
-if distance > 0%1,    % distance units are in ft
+stop_turning_distance   = 1;    % [ft]  distance when steering control stops
+start_cruising_distance = 1;    % [ft]  distance when velocity
+%       P-control turns off and cruising at
+%       constant velocity starts
+
+if distance > stop_turning_distance,    % distance units are in ft
     omega_temp = Kp_omega*angle;
-else 
+else
     omega_temp = 0;
 end
+
+omega_max = Robot.omega_max;
 
 if omega_temp > omega_max
     omega = omega_max;
@@ -35,16 +47,28 @@ else
 end
 
 % Distance
+%
+%   MK 2019-03-02
+%   NOTE THAT VELOCITIES are in ft!!!
+%   Need to convert v_max to ft !!!
 
-v_max = Robot.v_max;
+v_max       = Robot.v_max;
+ft          = 0.305;
+v_max_ft    = v_max / ft;
 
-v_offset    = 0; %**** 1
-v_temp = Kp*distance + v_offset;
+v_offset    = 1; % [ ft/s ]
 
-if v_temp > v_max
-    v = v_max;
-elseif v_temp < -v_max
-    v = -v_max;
+
+if distance < start_cruising_distance,    % distance units are in ft
+    v_temp = v_offset;
+else
+    v_temp = Kp*distance + v_offset;
+end
+
+if v_temp > v_max_ft
+    v = v_max_ft;
+elseif v_temp < -v_max_ft
+    v = -v_max_ft;
 else
     v = v_temp;
 end
