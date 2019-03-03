@@ -8,5 +8,4 @@ plot([Rocket_line_start.x, Rocket_line_end.x] , [Rocket_line_start.y, Rocket_lin
 
 
 Target.x = Rocket_line_start.x;
-Target.y = Robot.W/2;
-%Robot.theta = 180 * deg;
+Target.y = 0;

@@ -48,6 +48,8 @@ plot([C2_x C4_x], [C2_y C4_y], 'b')
 plot([C4_x C3_x], [C4_y C3_y], 'b')
 plot([C3_x C1_x], [C3_y C1_y], 'b')
 
+N=4;
+plot([x x+N*L*cos(th)], [y y+N*L*sin(th)], 'b--')
 % hold off
 
 
