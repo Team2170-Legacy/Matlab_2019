@@ -49,7 +49,7 @@ hsv_target_L = rgb2hsv(target_L_img);
 
 target_L.H = (hsv_target_L(:,:,1) * 360) / 2;   % An array of all 'H' values in rgb target_L image, mult. by 359 due to 0-1 range for H
 target_L.S = hsv_target_L(:,:,2) * 255;         % An array of all 'S' values in rgb target_L image, mult. by 100 for percent
-target_L.V = hsv_target_L(:,:,3) * 100;         % An array of all 'V' values in rgb target_R image, mult. by 100 for percent
+target_L.V = hsv_target_L(:,:,3) * 255;         % An array of all 'V' values in rgb target_R image, mult. by 100 for percent
         
 target_L.H_min = min(min(target_L.H));
 target_L.H_max = max(max(target_L.H));
