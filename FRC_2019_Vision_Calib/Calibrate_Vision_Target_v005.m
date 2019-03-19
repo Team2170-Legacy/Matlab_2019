@@ -43,7 +43,7 @@ if target_type == 2
         % Find Calib values
         % Use i in order to have all images as their own structs of data
         index = (i - startImg) + 1;
-        Calib(index) = Find_Calib_Parameters_v001(target_L_img, target_R_img)
+        Calib(index) = Find_Calib_Parameters_v001(target_L_img, target_R_img);
     end
 
 else
@@ -69,12 +69,12 @@ else
         % Use i in order to have all images as their own structs of data 
         target_R_img = target_L_img;
         index = (i - startImg) + 1;
-        Calib(index) = Find_Calib_Parameters_v001(target_L_img, target_R_img)
+        Calib(index) = Find_Calib_Parameters_v001(target_L_img, target_R_img);
     end
 end
 
-% Take the average of Calib parameters from each image
-
+%% Take the average of Calib parameters from each image
+avgCalib = Avg_Calib_Data(Calib)
 
 %% Now write .h file
 if target_type==1
@@ -82,3 +82,6 @@ if target_type==1
 else % target_type == 2
     Calibration_Data_Make_h_File_v002(Calib, 'VisionTarget_Calibration.h');
 end
+
+%% Display that code is done running
+disp('Done!');
