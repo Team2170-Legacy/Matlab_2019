@@ -12,13 +12,14 @@ startImg = input('Start image ID\n');
 
 %% Load in all images first
 if target_type == 2
-    for i=startImg:2:numImgs
-        img_path = strcat('Calibration_Images_2019_03_19/', num2str(i), '.jpg');
+    for i=startImg:numImgs
+        img_path = strcat('Calibration_Images_2019_03_29/', num2str(i), '.jpg');
         img = imread(img_path);
 
         % Rotate the image so that vision targets are straight up and down
         img = imrotate(img, 14.5);
         % Invert colors so that ginput cross hairs are more visible
+        figure('Name', img_path, 'NumberTitle', 'off'); hold on;
         imshow(uint8(255) - img);
 
         % Use ginput to grab specific target (add code support for 2)
@@ -47,8 +48,8 @@ if target_type == 2
     end
 
 else
-    for i=startImg:2:numImgs
-        img_path = strcat('Calibration_Images_2019_03_19/', num2str(i), '.jpg');
+    for i=startImg:numImgs
+        img_path = strcat('Calibration_Images_2019_03_29/', num2str(i), '.jpg');
         img = imread(img_path);
         figure('Name', img_path, 'NumberTitle', 'off')
         imshow(img);
