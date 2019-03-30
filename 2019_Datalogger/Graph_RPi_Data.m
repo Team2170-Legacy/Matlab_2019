@@ -4,8 +4,15 @@
 % Clear workspace first
 clc; clear all; close all;
 
+top_dir         = pwd;
+dirmask_top     = 'Log_*.txt';
+dir_content_top = dir( [ top_dir '\' dirmask_top ] );
+num_dir_top     = length(dir_content_top);
+
+log_file_name = dir_content_top(num_dir_top).name
+
 % Call import script
-Data=import_RPi('test2.txt');
+Data=import_RPi(log_file_name);
 
 % Extract timestamp and data columns, written in C++ using
 % dataLog << "t, x_target_error, distance_to_target, tape_align_error, 
@@ -28,6 +35,7 @@ subplot(411)
 plot(t, xe);
 ylabel(mk_str('x_target_error'))
 grid on
+title(mk_str(log_file_name))
 
 subplot(412)
 plot(t, d)
@@ -45,3 +53,8 @@ ylabel(mk_str('target_locked'))
 
 xlabel('t')
 grid on
+
+fig_name = log_file_name(1:end-4);
+saveas(gcf, fig_name, 'fig')
+disp('saving figure...')
+
